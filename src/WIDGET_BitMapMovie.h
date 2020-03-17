@@ -101,6 +101,23 @@ extern "C" {
  extern void GUI_BITMAP_MOVIE_Show(GUI_BITMAP_MOVIE_Handle hWin, int x0, int y0);
 
  /*********************************************************************
+ *
+ *       GUI_BITMAP_MOVIE_Pause
+ */
+ extern int GUI_BITMAP_MOVIE_Pause(GUI_BITMAP_MOVIE_Handle hMovie);
+
+ /*********************************************************************
+ *
+ *       GUI_BITMAP_MOVIE_Play
+ */
+ extern int GUI_BITMAP_MOVIE_Play(GUI_BITMAP_MOVIE_Handle hMovie);
+
+/*********************************************************************
+*
+*       GUI_BITMAP_MOVIE_GetFrameIndex
+*/
+ extern U32 GUI_BITMAP_MOVIE_GetFrameIndex(GUI_BITMAP_MOVIE_Handle hMovie);
+ /*********************************************************************
 *
 *       GUI_BITMAP_MOVIE_Delete
 */

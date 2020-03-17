@@ -140,8 +140,13 @@ void MainTask(void) {
       GUI_BITMAP_MOVIE_Show(hMyWidget, 121,158);
       time = GUI_GetTime();
       do {
+          //GUI_Delay(200);
           GUI_Exec();
-          GUI_X_Delay(1);
+          GUI_Delay(50);
+          GUI_BITMAP_MOVIE_Pause(hMyWidget);
+          GUI_Exec();
+          GUI_Delay(50);
+          GUI_BITMAP_MOVIE_Play(hMyWidget);
       } while (_Play);
       time = GUI_GetTime() - time;
       GUI_DispDecAt(time/35, 0, 0, 5);

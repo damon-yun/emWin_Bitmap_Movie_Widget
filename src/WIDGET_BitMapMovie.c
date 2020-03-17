@@ -67,6 +67,7 @@ typedef struct _gui_bitmap_movie_userdata {
     GUI_BITMAP_MOVIE* pMoive;
     int Frameindex;
     int Notification;
+    int FramePeriod;
     WM_HTIMER hTimer;
     GUI_BITMAP_MOVIE_FUNC *pfNotify;
     int x0;
@@ -103,7 +104,7 @@ static void GUI_BITMAP_MOVIE_Callback(WM_MESSAGE * pMsg) {
     switch (pMsg->MsgId) {
     case WM_TIMER:
         if (MovieUserData.hTimer == pMsg->Data.v) {
-            if (GUI_BITMMAP_MOVIE_NOTIFICATION_END == MovieUserData.Notification) {
+            if (GUI_BITMMAP_MOVIE_NOTIFICATION_START != MovieUserData.Notification) {
                 break;
             }
             WM_RestartTimer(MovieUserData.hTimer, MovieUserData.pMoive->FramePeriod);
@@ -162,8 +163,71 @@ void GUI_BITMAP_MOVIE_Show (GUI_BITMAP_MOVIE_Handle hWin, int x0, int y0)
     WM_ShowWindow(hWin);
     WM_Paint(hWin);
 }
+/*********************************************************************
+*
+*       GUI_BITMAP_MOVIE_Pause
+*/
+int GUI_BITMAP_MOVIE_Pause(GUI_BITMAP_MOVIE_Handle hMovie)
+{
+    int ret = 0;
+    GUI_BitMap_Movie_UserData MovieUserData;
 
+    if (hMovie == WM_HMEM_NULL) {
+        return -1;
+    }
 
+    ret = WM_GetUserData(hMovie, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
+    if (ret == 0) {
+        return -1;
+    }
+    MovieUserData.Notification = GUI_BITMMAP_MOVIE_NOTIFICATION_STOP;
+
+    WM_SetUserData(hMovie, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
+
+    return 0;
+}
+/*********************************************************************
+*
+*       GUI_BITMAP_MOVIE_Play
+*/
+int GUI_BITMAP_MOVIE_Play(GUI_BITMAP_MOVIE_Handle hMovie)
+{
+    int ret = 0;
+    GUI_BitMap_Movie_UserData MovieUserData;
+
+    if (hMovie == WM_HMEM_NULL) {
+        return -1;
+    }
+
+    ret = WM_GetUserData(hMovie, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
+    if (ret == 0) {
+        return -1;
+    }
+    MovieUserData.Notification = GUI_BITMMAP_MOVIE_NOTIFICATION_START;
+    WM_RestartTimer(MovieUserData.hTimer, MovieUserData.FramePeriod);
+
+    WM_SetUserData(hMovie, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
+
+    return 0;
+}
+
+/*********************************************************************
+*
+*       GUI_BITMAP_MOVIE_GetFrameIndex
+*/
+U32 GUI_BITMAP_MOVIE_GetFrameIndex(GUI_BITMAP_MOVIE_Handle hMovie)
+{
+    int ret = 0;
+    GUI_BitMap_Movie_UserData MovieUserData;
+
+    if (hMovie == WM_HMEM_NULL) {
+        return 0;
+    }
+
+    WM_GetUserData(hMovie, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
+
+    return (U32)MovieUserData.Frameindex;
+}
 /*********************************************************************
 *
 *       MYWIDGET_Create
@@ -192,7 +256,7 @@ GUI_BITMAP_MOVIE_Handle GUI_BITMAP_MOVIE_Create(const void* pFileData, WM_HWIN h
 
     hWin = WM_CreateWindowAsChild(0, 0, pBitmapMovie->xSize, pBitmapMovie->ySize, hWinParent, WM_CF_HIDE, GUI_BITMAP_MOVIE_Callback, sizeof(GUI_BitMap_Movie_UserData));
     BitMapMovieUserData.hTimer = WM_CreateTimer(hWin, 0, pBitmapMovie->FramePeriod, 0);
-
+    BitMapMovieUserData.FramePeriod = pBitmapMovie->FramePeriod;
     WM_SetUserData(hWin, &BitMapMovieUserData, sizeof(GUI_BitMap_Movie_UserData));
     return hWin;
 }

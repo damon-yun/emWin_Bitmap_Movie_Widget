@@ -151,6 +151,7 @@ void GUI_BITMAP_MOVIE_Show (GUI_BITMAP_MOVIE_Handle hWin, int x0, int y0)
     }
     WM_GetUserData(hWin, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
     MovieUserData.Notification = GUI_BITMMAP_MOVIE_NOTIFICATION_START;
+    MovieUserData.Frameindex = 0;
     MovieUserData.x0 = x0;
     MovieUserData.y0 = y0;
     WM_SetUserData(hWin, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));

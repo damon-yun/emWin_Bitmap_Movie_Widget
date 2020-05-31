@@ -115,12 +115,12 @@ static void GUI_BITMAP_MOVIE_Callback(WM_MESSAGE * pMsg) {
     break;
 
     case WM_PAINT:
-                handle = GUI_MEMDEV_Create(MovieUserData.x0, MovieUserData.y0, MovieUserData.pMoive->xSize, MovieUserData.pMoive->ySize);
-    	        GUI_MEASDEV_Select(handle);
-    	        GUI_DrawBitmap(((MovieUserData.pMoive->pBitmapTable)[MovieUserData.Frameindex]), 0, 0);
-     	        GUI_MEASDEV_Select(0);
-    	        GUI_MEMDEV_CopyToLCD(handle);
-    	        GUI_MEMDEV_Delete(handle);
+        handle = GUI_MEMDEV_Create(MovieUserData.x0, MovieUserData.y0, MovieUserData.pMoive->xSize, MovieUserData.pMoive->ySize);
+        GUI_MEASDEV_Select(handle);
+        GUI_DrawBitmap(((MovieUserData.pMoive->pBitmapTable)[MovieUserData.Frameindex]), 0, 0);
+        GUI_MEASDEV_Select(0);
+        GUI_MEMDEV_CopyToLCD(handle);
+        GUI_MEMDEV_Delete(handle);
 
 
         if (MovieUserData.Frameindex == MovieUserData.pMoive->FrameNum - 1) {
@@ -150,6 +150,9 @@ void GUI_BITMAP_MOVIE_Show (GUI_BITMAP_MOVIE_Handle hWin, int x0, int y0)
         return;
     }
     WM_GetUserData(hWin, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
+    if(GUI_BITMMAP_MOVIE_NOTIFICATION_START == MovieUserData.Notification){
+        return 0;
+    }
     MovieUserData.Notification = GUI_BITMMAP_MOVIE_NOTIFICATION_START;
     MovieUserData.Frameindex = 0;
     MovieUserData.x0 = x0;
@@ -159,9 +162,10 @@ void GUI_BITMAP_MOVIE_Show (GUI_BITMAP_MOVIE_Handle hWin, int x0, int y0)
     if (MovieUserData.pfNotify) {
         MovieUserData.pfNotify(hWin, MovieUserData.Notification, MovieUserData.Frameindex);
     }
-
+        
     WM_MoveTo(hWin, x0, y0);
     WM_ShowWindow(hWin);
+    WM_RestartTimer(MovieUserData.hTimer, MovieUserData.FramePeriod);
     WM_Paint(hWin);
 }
 /*********************************************************************
@@ -180,6 +184,9 @@ int GUI_BITMAP_MOVIE_Pause(GUI_BITMAP_MOVIE_Handle hMovie)
     ret = WM_GetUserData(hMovie, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
     if (ret == 0) {
         return -1;
+    }
+    if(GUI_BITMMAP_MOVIE_NOTIFICATION_STOP == MovieUserData.Notification){
+        return 0;
     }
     MovieUserData.Notification = GUI_BITMMAP_MOVIE_NOTIFICATION_STOP;
 
@@ -203,6 +210,9 @@ int GUI_BITMAP_MOVIE_Play(GUI_BITMAP_MOVIE_Handle hMovie)
     ret = WM_GetUserData(hMovie, &MovieUserData, sizeof(GUI_BitMap_Movie_UserData));
     if (ret == 0) {
         return -1;
+    }
+    if(GUI_BITMMAP_MOVIE_NOTIFICATION_START == MovieUserData.Notification){
+        return 0;
     }
     MovieUserData.Notification = GUI_BITMMAP_MOVIE_NOTIFICATION_START;
     WM_RestartTimer(MovieUserData.hTimer, MovieUserData.FramePeriod);
